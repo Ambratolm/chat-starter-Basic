@@ -1,14 +1,18 @@
 # ![Icon](./icon.png?raw=true) Chat Starter (Basic)
 
+![Incomplete](https://img.shields.io/badge/Incomplete-red)
 [![Windows](https://img.shields.io/badge/Windows-blue?logo=windows)](https://github.com/topics/windows)
 [![C# 4.0](https://img.shields.io/badge/C%23-4.0-blue?logo=c-sharp)](https://github.com/topics/csharp)
 [![.NET Framework 4.0](https://img.shields.io/badge/.NET%20Framework-4.0-blue?logo=dot-net)](https://github.com/topics/dotnet)
 
-Simple 💬 chat application for Windows.
+Simple small 💬 chat application for Windows.
 
 :floppy_disk: [**Download Binary Release**](./Chat%20Starter%20Basic/bin/Release/ChatStarterBasic.exe?raw=true)
 
-![Screenshot](./screenshot.png?raw=true)
+![Screenshot](./screenshot.gif?raw=true)
+
+## :memo: Note
+Well... I made this times ago while trying to mess out with networking api and similar stuff. it's quite messy and incomplete for the moment, but it should be a bit useful for learning or simply for nostalgic purposes. 😐
 
 ## :rocket: Development
 - Language: **[C#](https://github.com/dotnet/csharplang) 4.0**

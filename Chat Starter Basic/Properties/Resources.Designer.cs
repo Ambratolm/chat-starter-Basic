@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ChatStarterBasic.Properties
-{
-
-
+namespace ChatStarterBasic.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   Une classe de ressource fortement typée destinée, entre autres, à la consultation des chaînes localisées.
     /// </summary>
@@ -73,9 +73,9 @@ namespace ChatStarterBasic.Properties
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap yeni_insan_ava {
+        internal static System.Drawing.Bitmap yeni_insan {
             get {
-                object obj = ResourceManager.GetObject("yeni-insan-ava", resourceCulture);
+                object obj = ResourceManager.GetObject("yeni_insan", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

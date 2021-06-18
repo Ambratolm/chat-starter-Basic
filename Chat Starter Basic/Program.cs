@@ -13,6 +13,13 @@ namespace ChatStarterBasic
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // Run two instances (For test only)
+            //Form_Main form = new Form_Main();
+            //form.WindowState = FormWindowState.Maximized;
+            //form.Show();
+            //new Form_Main().Show();
+
             Application.Run(new Form_Main());
         }
     }

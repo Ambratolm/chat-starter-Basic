@@ -49,12 +49,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\ChatSession.cs" />
     <Compile Include="Form_Main.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form_Main.Designer.cs">
       <DependentUpon>Form_Main.cs</DependentUpon>
     </Compile>
+    <Compile Include="API\Network.cs" />
+    <Compile Include="API\ChatSessionEvents.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form_Main.resx">
@@ -84,7 +87,7 @@
     <None Include="Resources\cat.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\yeni-insan-ava.jpg" />
+    <None Include="Resources\yeni-insan.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />

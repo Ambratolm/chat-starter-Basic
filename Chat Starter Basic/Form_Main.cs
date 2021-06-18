@@ -1,115 +1,139 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace ChatStarterBasic
 {
     public partial class Form_Main : Form
     {
-        private Socket _socket;
-        private EndPoint _localEndPoint, _remoteEndPoint;
-        private IPAddress _localIP, _remoteIP;
-        private int _localPort, _remotePort;
+        public enum ChatStatus { Initial = 0, Connected = 1, Error = 2 };
+        public ChatStatus Status { get; set; }
+        public ChatSession Chat { get; set; }
 
         public Form_Main()
         {
             InitializeComponent();
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            _localIP = IPAddress.Parse(GetLocalIP());
-            _remoteIP = IPAddress.Parse(GetLocalIP());
-            _localPort = 80;
-            _remotePort = 80;
+            this.Text += string.Format(" - {0}", Network.GetLocalIP().ToString());
+            textBox_message_TextChanged(null, null);
+            button_on.PerformClick();
+            InitializeChat();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        public void SetStatus(ChatStatus status)
         {
-            this.Text += " - " + GetLocalIP();
-            button_send.Enabled = false;
-            textBox_message.Focus(); textBox_message.Select();
-            button_connect.PerformClick();
-        }
-
-        public string GetLocalIP()
-        {
-            IPHostEntry host;
-            host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (IPAddress ip in host.AddressList)
+            switch (status)
             {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
+                case ChatStatus.Initial:
+                    button_online.BackColor = Color.Silver;
+                    button_online.Text = "Offline";
+                    textBox_message.Enabled = false;
+                    button_on.Enabled = true;
+                    button_off.Enabled = false;
+                    break;
+                case ChatStatus.Connected:
+                    button_online.BackColor = Color.Green;
+                    button_online.Text = "Online";
+                    textBox_message.Enabled = true;
+                    button_on.Enabled = false;
+                    button_off.Enabled = true;
+                    break;
+                case ChatStatus.Error:
+                    button_online.BackColor = Color.Red;
+                    button_online.Text = "Error";
+                    textBox_message.Enabled = false;
+                    button_off.Enabled = true;
+                    button_on.Enabled = false;
+                    break;
+                default:
+                    break;
             }
-            return "127.0.0.1";
         }
 
-        public void MessageCallBack(IAsyncResult aResult)
+        public void InitializeChat()
         {
+            Chat = new ChatSession();
+
+            Chat.MessageReceived += (s, e) =>
+            {
+                listBox_conversation.Items.Add(
+                    string.Format("Anonymous@{0}: {1}", e.SenderIP, e.Message)
+                );
+            };
+
             try
             {
-                int size = _socket.EndReceiveFrom(aResult, ref _remoteEndPoint);
-                if (size > 0)
+                Chat.ConnectAsync();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, Application.ProductName,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus(ChatStatus.Error);
+                return;
+            }
+
+            SetStatus(ChatStatus.Connected);
+        }
+
+        private void button_send_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(textBox_message.Text))
+            {
+                try
                 {
-                    byte[] receivedData = new byte[1464];
-                    receivedData = (byte[])aResult.AsyncState;
-                    ASCIIEncoding eEncoding = new ASCIIEncoding();
-                    string receivedMessage = eEncoding.GetString(receivedData);
-                    listBox_conversation.Items.Add(_remoteIP + " : " + receivedMessage);
+                    Chat.SendMessage(textBox_message.Text);
                 }
-                byte[] buffer = new byte[1500];
-                _socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref _remoteEndPoint,
-                    new AsyncCallback(MessageCallBack), buffer);
-            }
-            catch (Exception exp)
-            {
-                MessageBox.Show(exp.Message);
-            }
-        }
+                catch (Exception exception)
+                {
+                    MessageBox.Show(exception.Message, Application.ProductName,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    SetStatus(ChatStatus.Error);
+                }
 
-        private void button_close_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void button_OK_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                ASCIIEncoding eEncoding = new ASCIIEncoding();
-                string sentMessage = textBox_message.Text;
-                byte[] sentData = new byte[1500];
-                sentData = eEncoding.GetBytes(sentMessage);
-                _socket.Send(sentData);
-                listBox_conversation.Items.Add("ME : " + sentMessage);
+                listBox_conversation.Items.Add(string.Format("Me: {0}", textBox_message.Text));
                 textBox_message.Clear();
             }
-            catch (Exception exp)
+        }
+
+        private void textBox_message_TextChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(textBox_message.Text))
             {
-                MessageBox.Show(exp.Message);
+                button_send.ForeColor = Color.Gray;
+                button_send.Cursor = Cursors.No;
+            }
+            else
+            {
+                button_send.ForeColor = Color.White;
+                button_send.Cursor = Cursors.Hand;
             }
         }
 
-        private void button_connect_Click(object sender, EventArgs e)
+        private void button_config_Click(object sender, EventArgs e)
         {
-            try
+            
+        }
+
+        private void button_online_Click(object sender, EventArgs e)
+        {
+            button_on.PerformClick();
+        }
+
+        private void button_on_Click(object sender, EventArgs e)
+        {
+            if (button_on.Enabled)
             {
-                _localEndPoint = new IPEndPoint(_localIP, _localPort);
-                _socket.Bind(_localEndPoint);
-                _remoteEndPoint = new IPEndPoint(_remoteIP, _remotePort);
-                _socket.Connect(_remoteEndPoint);
-                byte[] buffer = new byte[1500];
-                _socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref _remoteEndPoint,
-                    new AsyncCallback(MessageCallBack), buffer);
-                button_connect.Enabled = false;
-                button_send.Enabled = true;
-                textBox_message.Focus();
+                Chat.ConnectAsync();
+                SetStatus(ChatStatus.Connected);
             }
-            catch (Exception exp)
+        }
+
+        private void button_off_Click(object sender, EventArgs e)
+        {
+            if (button_off.Enabled)
             {
-                MessageBox.Show(exp.Message);
+                Chat.Disconnect();
+                SetStatus(ChatStatus.Initial);
             }
         }
     }
